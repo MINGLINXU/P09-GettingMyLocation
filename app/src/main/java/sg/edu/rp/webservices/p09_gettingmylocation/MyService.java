@@ -9,9 +9,6 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
-import androidx.core.content.ContextCompat;
-import androidx.core.content.PermissionChecker;
-
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -21,6 +18,9 @@ import com.google.android.gms.location.LocationServices;
 import java.io.File;
 import java.io.FileWriter;
 
+import androidx.core.content.ContextCompat;
+import androidx.core.content.PermissionChecker;
+
 
 public class MyService extends Service {
 
@@ -29,6 +29,7 @@ public class MyService extends Service {
     FusedLocationProviderClient client;
     LocationRequest mLocationRequest;
     LocationCallback mLocationCallback;
+    String folderLocation;
 
     public MyService() {
     }
@@ -54,12 +55,12 @@ public class MyService extends Service {
             @Override
             public void onLocationResult(LocationResult locationResult) {
                 if (locationResult != null) {
-                    Location data = locationResult.getLastLocation();
-                    double lat= data.getLatitude();
-                    double lng= data.getLongitude();
+                    Location locData = locationResult.getLastLocation();
+                    double lat= locData.getLatitude();
+                    double lng= locData.getLongitude();
                     String msg = "Lat: " + lat + ", Lng: " + lng;
                     try {
-                        String folderLocation = Environment.getExternalStorageDirectory().getAbsolutePath() + "/P09";
+                        folderLocation = Environment.getExternalStorageDirectory().getAbsolutePath() + "/L09_PS";
                         File targetFile = new File(folderLocation, "data.txt");
                         FileWriter writer = new FileWriter(targetFile, true);
                         writer.write(msg+"\n");
@@ -78,6 +79,9 @@ public class MyService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         if(started == false){
             started = true;
+            if (checkPermission()) {
+                client.requestLocationUpdates(mLocationRequest, mLocationCallback, null);
+            }
             Toast.makeText(this, "Service is running", Toast.LENGTH_SHORT).show();
         }
         else{
@@ -89,6 +93,7 @@ public class MyService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        client.removeLocationUpdates(mLocationCallback);
         Toast.makeText(this, "Service is stop", Toast.LENGTH_SHORT).show();
     }
 

@@ -45,7 +45,17 @@ public class MainActivity extends AppCompatActivity {
         btn_Check = findViewById(R.id.btn_check);
         tv = findViewById(R.id.tv);
         client = LocationServices.getFusedLocationProviderClient(this);
-        folderLocation = Environment.getExternalStorageDirectory().getAbsolutePath() + "/P09";
+
+
+        int permissionCheck_Storage = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if(permissionCheck_Storage != PermissionChecker.PERMISSION_GRANTED){
+            Toast.makeText(this, "Permission not granted", Toast.LENGTH_SHORT).show();
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
+            finish();
+        }
+
+
+        folderLocation = Environment.getExternalStorageDirectory().getAbsolutePath() + "/L09_PS";
         File folder = new File(folderLocation);
         if (folder.exists() == false){
             boolean result = folder.mkdir();
@@ -94,9 +104,9 @@ public class MainActivity extends AppCompatActivity {
         btn_Check.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String folderLocation= Environment.getExternalStorageDirectory().getAbsolutePath() + "/MyFolder";
+                folderLocation= Environment.getExternalStorageDirectory().getAbsolutePath() + "/L09_PS";
                 File targetFile = new File(folderLocation, "data.txt");
-                if (targetFile.exists()){
+                if (targetFile.exists() == true){
                     String data ="";
                     try {
                         FileReader reader = new FileReader(targetFile);
@@ -110,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
                         reader.close();
                     } catch (Exception e) {
                         Toast.makeText(MainActivity.this, "Failed to read!", Toast.LENGTH_LONG).show();e.printStackTrace();
+                        e.printStackTrace();
                     }
                     Toast.makeText(MainActivity.this, data, Toast.LENGTH_LONG).show();
                 }
